@@ -15,7 +15,7 @@ const STORAGE_URL =
  * kembali ke Google Spreadsheet.
  */
 const DEFAULT_API_URL =
-    "https://script.google.com/macros/s/AKfycbyYQ6Y472HiCSD0TJl-ejeU-Lb0vPSs__fAK_eUxJWhHePr_S63tM58GfMD_JXONOGL/exec";
+    "https://script.google.com/macros/s/AKfycbz-zrsdF8UnVFVfn_k8pbLFR-uB4r6zmnI66H03MXRI8afCdLkbw1GxMOUAxIR7mimY/exec";
 
 
 /* =========================================================
