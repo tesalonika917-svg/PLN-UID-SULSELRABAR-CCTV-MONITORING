@@ -267,7 +267,7 @@
 
             <div class="kpi-grid">
 
-                <div class="kpi-card">
+                <div class="kpi-card kpi-card--hero">
 
                     <div class="kpi-icon">
                         ▤
@@ -322,7 +322,7 @@
                         </span>
 
                         <strong id="totalCctv">
-                            0
+                            
                         </strong>
 
                     </div>
@@ -351,7 +351,7 @@
                 </div>
 
 
-                <div class="kpi-card">
+                <div class="kpi-card kpi-card--on">
 
                     <div class="kpi-icon">
                         ✓
@@ -372,7 +372,7 @@
                 </div>
 
 
-                <div class="kpi-card">
+                <div class="kpi-card kpi-card--off">
 
                     <div class="kpi-icon">
                         ✕
@@ -631,6 +631,13 @@
                         id="exportBtn"
                     >
                         ↓ Export CSV
+                    </button>
+
+                    <button
+                        class="btn btn-primary"
+                        id="viewPdfBtn"
+                    >
+                        📄 Lihat PDF
                     </button>
 
                 </div>
@@ -1017,6 +1024,8 @@
                         Menu Data Laporan menampilkan seluruh data
                         dari Spreadsheet. Tombol Edit digunakan untuk
                         menambahkan atau mengubah informasi temuan.
+                        Tombol PDF ULP membuat rekap laporan harian
+                        khusus untuk ULP terkait.
                     </p>
 
                 </div>
@@ -1425,6 +1434,87 @@
     </div>
 
 </div>
+
+
+<!-- ======================================
+     MODAL LIHAT PDF — DATA LAPORAN
+======================================= -->
+
+<div
+    class="modal-overlay"
+    id="pdfModal"
+>
+
+    <div class="edit-modal pdf-modal">
+
+        <div class="modal-header">
+
+            <div>
+
+                <h2 id="pdfModalTitle">
+                    Rekap Laporan Harian (PDF)
+                </h2>
+
+                <p id="pdfModalDesc">
+                    Direkap per tanggal — ULP yang sudah melapor pada hari itu.
+                </p>
+
+            </div>
+
+            <button
+                class="icon-btn"
+                id="closePdfModal"
+                type="button"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="modal-body pdf-modal-body">
+
+            <div
+                class="pdf-status"
+                id="pdfStatus"
+            >
+                Menyiapkan PDF...
+            </div>
+
+            <iframe
+                id="pdfPreviewFrame"
+                class="pdf-preview-frame"
+                title="Preview PDF Rekap Laporan Harian"
+            ></iframe>
+
+        </div>
+
+
+        <div class="modal-actions pdf-modal-actions">
+
+            <button
+                type="button"
+                class="btn btn-secondary"
+                id="closePdfModalBtn"
+            >
+                Tutup
+            </button>
+
+            <button
+                type="button"
+                class="btn btn-primary"
+                id="downloadPdfBtn"
+            >
+                ↓ Unduh PDF
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
 <!-- LIBRARY -->
 
 <script
@@ -1437,6 +1527,14 @@
 
 <script
     src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"
+></script>
+
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+></script>
+
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"
 ></script>
 
 <script src="script.js"></script>

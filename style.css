@@ -509,18 +509,31 @@ input, select, textarea, button {
     align-items: center;
     gap: 14px;
     box-shadow: var(--shadow-card);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
+.kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 32px rgba(10, 42, 84, 0.10);
+}
+
+/* -----------------------------------------
+   TITIK INDIKATOR (pengganti ikon ▤ ◷ ◉ ▦ ✓ ✕)
+
+   Glyph unicode lama disembunyikan (font-size: 0)
+   dan digantikan lingkaran kecil bewarna. Tidak
+   perlu ubah HTML — teks lama tetap ada tapi
+   tidak lagi terlihat.
+----------------------------------------- */
+
 .kpi-icon {
-    width: 46px;
-    height: 46px;
-    border-radius: 12px;
-    background: var(--pln-sky);
-    color: var(--pln-blue);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 19px;
+    width: 12px;
+    height: 12px;
+    min-width: 12px;
+    border-radius: 50%;
+    background: var(--pln-blue);
+    box-shadow: 0 0 0 5px rgba(15, 98, 181, 0.14);
+    font-size: 0;
     flex-shrink: 0;
 }
 
@@ -528,6 +541,7 @@ input, select, textarea, button {
     display: flex;
     flex-direction: column;
     gap: 2px;
+    min-width: 0;
 }
 
 .kpi-card span {
@@ -539,6 +553,83 @@ input, select, textarea, button {
     font-size: 22px;
     color: var(--pln-navy);
     font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+
+/* -----------------------------------------
+   TOTAL LAPORAN — ANGKA UTAMA
+
+   Dibuat paling besar & paling terang supaya
+   jadi fokus pertama saat dashboard dibuka.
+----------------------------------------- */
+
+.kpi-card--hero {
+    border-top: 3px solid var(--pln-blue);
+}
+
+.kpi-card--hero .kpi-icon {
+    background: var(--pln-blue);
+    box-shadow: 0 0 0 6px rgba(15, 98, 181, 0.16);
+}
+
+.kpi-card--hero strong {
+    font-size: 32px;
+    color: var(--pln-blue);
+    text-shadow: 0 0 18px rgba(15, 98, 181, 0.35);
+}
+
+
+/* -----------------------------------------
+   CCTV ON / CCTV OFF — LAMPU STATUS
+
+   Titik indikator menyala berdenyut (glow
+   animasi) hijau untuk ON dan merah untuk OFF,
+   meniru lampu status perangkat sungguhan.
+----------------------------------------- */
+
+.kpi-card--on .kpi-icon {
+    background: var(--success);
+    animation: kpiPulseOn 2.2s ease-in-out infinite;
+}
+
+.kpi-card--on strong {
+    color: var(--success);
+}
+
+.kpi-card--off .kpi-icon {
+    background: var(--danger);
+    animation: kpiPulseOff 2.2s ease-in-out infinite;
+}
+
+.kpi-card--off strong {
+    color: var(--danger);
+}
+
+@keyframes kpiPulseOn {
+    0%, 100% {
+        box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.16), 0 0 6px rgba(22, 163, 74, 0.55);
+    }
+    50% {
+        box-shadow: 0 0 0 7px rgba(22, 163, 74, 0.05), 0 0 15px rgba(22, 163, 74, 0.95);
+    }
+}
+
+@keyframes kpiPulseOff {
+    0%, 100% {
+        box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.16), 0 0 6px rgba(220, 38, 38, 0.55);
+    }
+    50% {
+        box-shadow: 0 0 0 7px rgba(220, 38, 38, 0.05), 0 0 15px rgba(220, 38, 38, 0.95);
+    }
+}
+
+/* Hormati pengguna yang mematikan animasi di OS-nya */
+@media (prefers-reduced-motion: reduce) {
+    .kpi-card--on .kpi-icon,
+    .kpi-card--off .kpi-icon {
+        animation: none;
+    }
 }
 
 /* =========================================================
@@ -736,6 +827,37 @@ tbody tr:hover {
 .action-btn:hover {
     background: var(--pln-blue);
     color: var(--white);
+}
+
+/* -----------------------------------------
+   GRUP TOMBOL AKSI (Edit + PDF ULP)
+
+   Menyusun tombol Edit dan tombol PDF ULP
+   secara vertikal di dalam kolom Aksi, agar
+   rapi tanpa membuat kolom terlalu lebar.
+----------------------------------------- */
+
+.aksi-btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: stretch;
+}
+
+.aksi-btn-group .action-btn {
+    width: 100%;
+    text-align: center;
+}
+
+.action-btn-pdf {
+    border-color: #FBE7B8;
+    background: #FFF7E6;
+    color: #B4790C;
+}
+
+.action-btn-pdf:hover {
+    background: var(--pln-yellow);
+    color: var(--pln-navy-dark);
 }
 
 /* =========================================================
@@ -999,6 +1121,54 @@ tbody tr:hover {
 }
 
 /* =========================================================
+   MODAL LIHAT PDF — DATA LAPORAN
+========================================================= */
+
+.pdf-modal {
+    width: 900px;
+    max-width: 96vw;
+    height: 88vh;
+}
+
+.pdf-modal-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 20px;
+    min-height: 0;
+}
+
+.pdf-status {
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+    padding: 40px 0;
+}
+
+.pdf-preview-frame {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    display: none;
+    background: #525659;
+}
+
+.pdf-modal-actions {
+    padding: 14px 20px;
+    border-top: 1px solid var(--line);
+    margin-top: 0;
+}
+
+@media (max-width: 640px) {
+
+    .pdf-modal {
+        height: 92vh;
+    }
+}
+
+/* =========================================================
    RESPONSIVE
 ========================================================= */
 
@@ -1118,249 +1288,4 @@ body.dark .chart-filter input[type="month"] {
     color: var(--ink);
     border-color: var(--line);
     color-scheme: dark;
-    /* =========================================================
-   PERBAIKAN KPI — HANYA BAGIAN KARTU STATISTIK
-   ========================================================= */
-
-/* Tata letak KPI lebih rapi */
-.kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 16px;
-    margin-bottom: 20px;
-}
-
-/* Kartu KPI */
-.kpi-card {
-    position: relative;
-    min-height: 92px;
-    background: var(--bg-card);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
-    padding: 16px 18px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    box-shadow: var(--shadow-card);
-    overflow: hidden;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-/* Efek ringan saat mouse diarahkan */
-.kpi-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(10, 42, 84, 0.10);
-}
-
-/* Ikon lama tetap ada, tetapi dibuat lebih kecil dan rapi */
-.kpi-icon {
-    width: 42px;
-    height: 42px;
-    min-width: 42px;
-    border-radius: 11px;
-    background: var(--pln-sky);
-    color: var(--pln-blue);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 17px;
-}
-
-/* Isi angka dan label */
-.kpi-card > div:last-child {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    min-width: 0;
-}
-
-/* Label */
-.kpi-card span {
-    font-size: 12px;
-    color: var(--muted);
-    font-weight: 600;
-    line-height: 1.3;
-}
-
-/* Angka */
-.kpi-card strong {
-    font-size: 25px;
-    line-height: 1.15;
-    color: var(--pln-navy);
-    font-weight: 800;
-    font-variant-numeric: tabular-nums;
-}
-
-/* =========================================================
-   TOTAL LAPORAN — DIBUAT LEBIH MENONJOL
-   ========================================================= */
-
-.kpi-card:first-child {
-    border-left: 4px solid var(--pln-blue);
-}
-
-.kpi-card:first-child strong {
-    font-size: 32px;
-    color: var(--pln-blue);
-}
-
-/* =========================================================
-   INDIKATOR CCTV ON / OFF
-   ========================================================= */
-
-/* Posisi lampu indikator */
-.kpi-card:nth-child(5),
-.kpi-card:nth-child(6) {
-    position: relative;
-}
-
-/* Lampu indikator */
-.kpi-card:nth-child(5)::after,
-.kpi-card:nth-child(6)::after {
-    content: "";
-    position: absolute;
-    right: 18px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-}
-
-/* CCTV ON — HIJAU */
-.kpi-card:nth-child(5)::after {
-    background: #16A34A;
-    box-shadow:
-        0 0 0 3px rgba(22, 163, 74, 0.12),
-        0 0 10px rgba(22, 163, 74, 0.75);
-    animation: lampOn 1.8s infinite ease-in-out;
-}
-
-/* CCTV OFF — MERAH */
-.kpi-card:nth-child(6)::after {
-    background: #DC2626;
-    box-shadow:
-        0 0 0 3px rgba(220, 38, 38, 0.12),
-        0 0 10px rgba(220, 38, 38, 0.65);
-    animation: lampOff 1.8s infinite ease-in-out;
-}
-
-/* Animasi lampu hijau */
-@keyframes lampOn {
-    0%, 100% {
-        opacity: 1;
-        box-shadow:
-            0 0 0 3px rgba(22, 163, 74, 0.12),
-            0 0 8px rgba(22, 163, 74, 0.55);
-    }
-
-    50% {
-        opacity: 0.65;
-        box-shadow:
-            0 0 0 5px rgba(22, 163, 74, 0.08),
-            0 0 15px rgba(22, 163, 74, 0.85);
-    }
-}
-
-/* Animasi lampu merah */
-@keyframes lampOff {
-    0%, 100% {
-        opacity: 1;
-        box-shadow:
-            0 0 0 3px rgba(220, 38, 38, 0.12),
-            0 0 8px rgba(220, 38, 38, 0.50);
-    }
-
-    50% {
-        opacity: 0.65;
-        box-shadow:
-            0 0 0 5px rgba(220, 38, 38, 0.08),
-            0 0 15px rgba(220, 38, 38, 0.80);
-    }
-}
-
-/* =========================================================
-   RESPONSIVE — TABLET
-   ========================================================= */
-
-@media (max-width: 1100px) {
-    .kpi-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
-
-/* =========================================================
-   RESPONSIVE — HP
-   ========================================================= */
-
-@media (max-width: 700px) {
-    .kpi-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
-    }
-
-    .kpi-card {
-        min-height: 84px;
-        padding: 14px;
-        gap: 10px;
-    }
-
-    .kpi-icon {
-        width: 38px;
-        height: 38px;
-        min-width: 38px;
-        font-size: 15px;
-    }
-
-    .kpi-card strong {
-        font-size: 22px;
-    }
-
-    .kpi-card:first-child strong {
-        font-size: 28px;
-    }
-
-    .kpi-card:nth-child(5)::after,
-    .kpi-card:nth-child(6)::after {
-        right: 12px;
-        width: 9px;
-        height: 9px;
-    }
-}
-
-/* HP sangat kecil */
-@media (max-width: 450px) {
-    .kpi-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-    }
-
-    .kpi-card {
-        padding: 12px;
-    }
-
-    .kpi-icon {
-        display: none;
-    }
-
-    .kpi-card strong {
-        font-size: 21px;
-    }
-
-    .kpi-card:first-child strong {
-        font-size: 27px;
-    }
-
-    .kpi-card span {
-        font-size: 11px;
-    }
-}
-
-/* Jika pengguna memilih reduced motion */
-@media (prefers-reduced-motion: reduce) {
-    .kpi-card:nth-child(5)::after,
-    .kpi-card:nth-child(6)::after {
-        animation: none;
-    }
-}
 }

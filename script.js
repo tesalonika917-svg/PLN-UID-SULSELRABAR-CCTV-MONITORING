@@ -113,6 +113,34 @@ function escapeAttribute(value) {
 
 
 /* =========================================================
+   NORMALISASI TEKS UNTUK PERBANDINGAN (mis. NAMA ULP)
+
+   PENTING:
+   Nama ULP di Spreadsheet diketik manual lewat Google Form,
+   jadi rawan variasi kecil antar laporan — spasi ganda,
+   spasi tersembunyi (non-breaking space / zero-width),
+   atau beda huruf besar/kecil (mis. "ULP Rappang" vs
+   "ULP  Rappang" vs "ulp rappang"). Kalau perbandingan ULP
+   dilakukan dengan "===" apa adanya, laporan yang sebenarnya
+   dari ULP yang sama tapi ketikannya sedikit berbeda akan
+   dianggap ULP lain / tidak ikut ke rekapan.
+
+   Fungsi ini dipakai KHUSUS untuk PERBANDINGAN saja
+   (bukan untuk ditampilkan), supaya variasi kecil seperti
+   itu tetap dianggap ULP yang sama.
+========================================================= */
+
+function normalizeKey(value) {
+
+    return String(value ?? "")
+        .replace(/[\u200B-\u200D\uFEFF\u00A0]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .toLowerCase();
+}
+
+
+/* =========================================================
    PARSE TANGGAL
 ========================================================= */
 
@@ -1014,13 +1042,25 @@ function renderLaporan() {
 
                 <td>
 
-                    <button
-                        type="button"
-                        class="action-btn"
-                        onclick="openEditModal(${row.rowNumber})"
-                    >
-                        ✎ Edit
-                    </button>
+                    <div class="aksi-btn-group">
+
+                        <button
+                            type="button"
+                            class="action-btn"
+                            onclick="openEditModal(${row.rowNumber})"
+                        >
+                            ✎ Edit
+                        </button>
+
+                        <button
+                            type="button"
+                            class="action-btn action-btn-pdf"
+                            onclick="openUlpPdfModal(${row.rowNumber})"
+                        >
+                            📄 PDF ULP
+                        </button>
+
+                    </div>
 
                 </td>
             `;
@@ -1289,7 +1329,16 @@ function renderDashboard() {
                 .map(
                     function(row) {
 
-                        return row.ulp;
+                        /*
+                         * Dinormalisasi (normalizeKey) supaya
+                         * ULP yang sama tapi ketikannya sedikit
+                         * berbeda (spasi/huruf besar-kecil) tidak
+                         * terhitung sebagai 2 ULP berbeda.
+                         */
+
+                        return normalizeKey(
+                            row.ulp
+                        );
                     }
                 )
                 .filter(Boolean)
@@ -2506,13 +2555,25 @@ function renderFilteredLaporan(
 
                 <td>
 
-                    <button
-                        type="button"
-                        class="action-btn"
-                        onclick="openEditModal(${row.rowNumber})"
-                    >
-                        ✎ Edit
-                    </button>
+                    <div class="aksi-btn-group">
+
+                        <button
+                            type="button"
+                            class="action-btn"
+                            onclick="openEditModal(${row.rowNumber})"
+                        >
+                            ✎ Edit
+                        </button>
+
+                        <button
+                            type="button"
+                            class="action-btn action-btn-pdf"
+                            onclick="openUlpPdfModal(${row.rowNumber})"
+                        >
+                            📄 PDF ULP
+                        </button>
+
+                    </div>
 
                 </td>
 
@@ -3950,6 +4011,1026 @@ function renderJobChart() {
 
 
 /* =========================================================
+   PDF — DATA LAPORAN (SELURUH ULP)
+
+   Membuat PDF dari seluruh data yang sedang tampil di
+   tabel "Data Laporan" (memakai jsPDF + jsPDF-AutoTable,
+   dimuat lewat CDN di index.html), lalu menampilkannya
+   langsung di dalam halaman lewat <iframe> (tanpa perlu
+   diunduh dulu untuk bisa dilihat). Tombol "Unduh PDF"
+   di modal tetap menyediakan file-nya untuk disimpan.
+========================================================= */
+
+let currentPdfBlobUrl = null;
+
+
+function buildLaporanPdfDoc() {
+
+    if (
+        typeof window.jspdf === "undefined" ||
+        typeof window.jspdf.jsPDF === "undefined"
+    ) {
+
+        throw new Error(
+            "Pustaka jsPDF tidak ditemukan."
+        );
+    }
+
+    const { jsPDF } = window.jspdf;
+
+    const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "pt",
+        format: "a4"
+    });
+
+    const pageWidth =
+        doc.internal.pageSize.getWidth();
+
+    const pageHeight =
+        doc.internal.pageSize.getHeight();
+
+    const marginLeft = 24;
+
+    const marginRight = 24;
+
+    const marginBottom = 40;
+
+
+    /* -----------------------------------------
+       JUDUL
+    ----------------------------------------- */
+
+    doc.setFontSize(14);
+
+    doc.setFont(
+        undefined,
+        "bold"
+    );
+
+    doc.text(
+        "Logsheet Monitoring CCTV Online UID SSTB",
+        pageWidth / 2,
+        40,
+        { align: "center" }
+    );
+
+    doc.setFontSize(10);
+
+    doc.setFont(
+        undefined,
+        "normal"
+    );
+
+    doc.text(
+        "Rekap Laporan Harian per ULP — dicetak pada " +
+            formatDateTime(new Date()),
+        pageWidth / 2,
+        58,
+        { align: "center" }
+    );
+
+
+    /* -----------------------------------------
+       KELOMPOKKAN DATA PER TANGGAL
+
+       PENTING: rekap ini dibuat PER HARI — setiap
+       tanggal jadi satu bagian sendiri, berisi
+       daftar ULP yang SUDAH MELAPOR pada hari itu
+       (muncul hanya kalau memang ada laporan masuk
+       di tanggal tersebut) beserta rincian tiap
+       laporannya. Kalau 1 ULP lapor beberapa kali
+       di hari yang sama, semua laporannya tetap
+       ditampilkan, tapi ULP itu cukup dihitung 1
+       kali di ringkasan "ULP sudah melapor".
+    ----------------------------------------- */
+
+    const groupsByDate = {};
+
+    DATA.forEach(
+        function(row) {
+
+            const dateKey =
+                row.dateOnly || "Tanpa Tanggal";
+
+            if (!groupsByDate[dateKey]) {
+
+                groupsByDate[dateKey] = [];
+            }
+
+            groupsByDate[dateKey].push(row);
+        }
+    );
+
+    /*
+     * Urutkan tanggal dari yang TERBARU lebih dulu.
+     * dateOnly berformat dd/mm/yyyy, jadi dikonversi
+     * dulu ke yyyy-mm-dd supaya bisa diurutkan benar.
+     */
+
+    const sortedDateKeys =
+        Object.keys(groupsByDate).sort(
+            function(a, b) {
+
+                function toSortable(dateStr) {
+
+                    const parts =
+                        dateStr.split("/");
+
+                    return parts.length === 3
+                        ? `${parts[2]}-${parts[1]}-${parts[0]}`
+                        : "0000-00-00";
+                }
+
+                return toSortable(b).localeCompare(
+                    toSortable(a)
+                );
+            }
+        );
+
+
+    let cursorY = 74;
+
+    function ensureSpace(neededHeight) {
+
+        if (
+            cursorY + neededHeight >
+            pageHeight - marginBottom
+        ) {
+
+            doc.addPage();
+
+            cursorY = 40;
+        }
+    }
+
+    if (!sortedDateKeys.length) {
+
+        doc.setFontSize(11);
+
+        doc.text(
+            "Belum ada laporan yang masuk.",
+            marginLeft,
+            cursorY
+        );
+
+    } else {
+
+        sortedDateKeys.forEach(
+            function(dateKey) {
+
+                const rowsThisDate =
+                    getSortedByDateDesc(
+                        groupsByDate[dateKey]
+                    );
+
+                const seenUlpKeys =
+                    new Set();
+
+                const uniqueUlp = [];
+
+                rowsThisDate.forEach(
+                    function(row) {
+
+                        if (!row.ulp) {
+                            return;
+                        }
+
+                        /*
+                         * Dedup berdasarkan normalizeKey(),
+                         * bukan teks apa adanya, supaya ULP
+                         * yang sama dengan ketikan sedikit
+                         * berbeda tidak dihitung 2 kali.
+                         * Nama yang ditampilkan tetap memakai
+                         * teks asli pada kemunculan pertama.
+                         */
+
+                        const key =
+                            normalizeKey(row.ulp);
+
+                        if (
+                            key &&
+                            !seenUlpKeys.has(key)
+                        ) {
+
+                            seenUlpKeys.add(key);
+
+                            uniqueUlp.push(row.ulp);
+                        }
+                    }
+                );
+
+
+                /* -----------------------------------------
+                   JUDUL TANGGAL + RINGKASAN ULP SUDAH LAPOR
+                ----------------------------------------- */
+
+                ensureSpace(50);
+
+                doc.setFontSize(11.5);
+
+                doc.setFont(undefined, "bold");
+
+                doc.setTextColor(15, 98, 181);
+
+                doc.text(
+                    "Tanggal: " + dateKey,
+                    marginLeft,
+                    cursorY
+                );
+
+                doc.setTextColor(0, 0, 0);
+
+                cursorY += 16;
+
+                doc.setFontSize(9);
+
+                doc.setFont(undefined, "normal");
+
+                const ringkasanText =
+                    "ULP yang sudah melapor hari ini (" +
+                    uniqueUlp.length +
+                    "): " +
+                    (uniqueUlp.length
+                        ? uniqueUlp.join(", ")
+                        : "-");
+
+                const wrappedRingkasan =
+                    doc.splitTextToSize(
+                        ringkasanText,
+                        pageWidth - marginLeft - marginRight
+                    );
+
+                ensureSpace(
+                    wrappedRingkasan.length * 11 + 10
+                );
+
+                doc.text(
+                    wrappedRingkasan,
+                    marginLeft,
+                    cursorY
+                );
+
+                cursorY +=
+                    wrappedRingkasan.length * 11 + 6;
+
+
+                /* -----------------------------------------
+                   TABEL RINCIAN LAPORAN HARI INI
+                ----------------------------------------- */
+
+                const bodyRows =
+                    rowsThisDate.map(
+                        function(row, index) {
+
+                            return [
+                                index + 1,
+                                row.dateText || "-",
+                                row.up3 || "-",
+                                row.ulp || "-",
+                                row.device || "-",
+                                row.job || "-",
+                                row.location || "-",
+                                row.officer || "-",
+                                row.documentation ? "Ada" : "-"
+                            ];
+                        }
+                    );
+
+                doc.autoTable({
+
+                    startY: cursorY,
+
+                    head: [[
+                        "No",
+                        "Waktu",
+                        "UP3",
+                        "ULP",
+                        "Perangkat",
+                        "Pekerjaan",
+                        "Lokasi",
+                        "Petugas",
+                        "Dokumentasi"
+                    ]],
+
+                    body: bodyRows,
+
+                    styles: {
+                        fontSize: 7.5,
+                        cellPadding: 4,
+                        overflow: "linebreak"
+                    },
+
+                    headStyles: {
+                        fillColor: [15, 98, 181],
+                        textColor: [255, 255, 255],
+                        fontStyle: "bold"
+                    },
+
+                    alternateRowStyles: {
+                        fillColor: [234, 243, 252]
+                    },
+
+                    columnStyles: {
+                        0: { cellWidth: 26 }
+                    },
+
+                    margin: {
+                        left: marginLeft,
+                        right: marginRight,
+                        bottom: marginBottom
+                    },
+
+                    didDrawPage:
+                        function() {
+
+                            const pageCount =
+                                doc.internal.getNumberOfPages();
+
+                            doc.setFontSize(8);
+
+                            doc.text(
+                                "Halaman " +
+                                    doc.internal.getCurrentPageInfo().pageNumber +
+                                    " / " +
+                                    pageCount,
+                                pageWidth - marginRight,
+                                pageHeight - 16,
+                                { align: "right" }
+                            );
+                        }
+                });
+
+                cursorY =
+                    doc.lastAutoTable.finalY + 26;
+            }
+        );
+    }
+
+    return doc;
+}
+
+
+/* =========================================================
+   PDF — REKAP LAPORAN PER ULP
+
+   Dipanggil dari tombol "📄 PDF ULP" pada kolom Aksi
+   di tabel Data Laporan. Berbeda dari buildLaporanPdfDoc()
+   yang merekap SEMUA ULP, fungsi ini hanya merekap laporan
+   milik SATU ULP (ULP dari baris yang tombolnya diklik),
+   tetap dikelompokkan PER TANGGAL supaya selalu mengikuti
+   laporan terbaru yang masuk tiap harinya (diperbaharui
+   otomatis setiap kali data di-refresh dari Spreadsheet).
+========================================================= */
+
+function buildUlpPdfDoc(ulp) {
+
+    if (
+        typeof window.jspdf === "undefined" ||
+        typeof window.jspdf.jsPDF === "undefined"
+    ) {
+
+        throw new Error(
+            "Pustaka jsPDF tidak ditemukan."
+        );
+    }
+
+    const { jsPDF } = window.jspdf;
+
+    const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "pt",
+        format: "a4"
+    });
+
+    const pageWidth =
+        doc.internal.pageSize.getWidth();
+
+    const pageHeight =
+        doc.internal.pageSize.getHeight();
+
+    const marginLeft = 24;
+
+    const marginRight = 24;
+
+    const marginBottom = 40;
+
+
+    /* -----------------------------------------
+       JUDUL
+    ----------------------------------------- */
+
+    doc.setFontSize(14);
+
+    doc.setFont(undefined, "bold");
+
+    doc.text(
+        "Logsheet Monitoring CCTV Online UID SSTB",
+        pageWidth / 2,
+        40,
+        { align: "center" }
+    );
+
+    doc.setFontSize(10);
+
+    doc.setFont(undefined, "normal");
+
+    doc.text(
+        "Rekap Laporan Harian — ULP " +
+            ulp +
+            " — dicetak pada " +
+            formatDateTime(new Date()),
+        pageWidth / 2,
+        58,
+        { align: "center" }
+    );
+
+
+    /* -----------------------------------------
+       HANYA DATA MILIK ULP TERKAIT
+
+       Dibandingkan dengan normalizeKey() (bukan "===")
+       supaya laporan dari ULP yang sama tapi ketikan
+       nama ULP-nya sedikit berbeda (spasi ganda, spasi
+       tersembunyi, atau huruf besar/kecil) tetap ikut
+       masuk ke rekapan — bukan malah dianggap ULP lain
+       lalu terlewat / tidak muncul di PDF.
+    ----------------------------------------- */
+
+    const targetUlpKey =
+        normalizeKey(ulp);
+
+    const rowsUlp =
+        DATA.filter(
+            function(row) {
+
+                return (
+                    normalizeKey(row.ulp) ===
+                    targetUlpKey
+                );
+            }
+        );
+
+
+    const groupsByDate = {};
+
+    rowsUlp.forEach(
+        function(row) {
+
+            const dateKey =
+                row.dateOnly || "Tanpa Tanggal";
+
+            if (!groupsByDate[dateKey]) {
+
+                groupsByDate[dateKey] = [];
+            }
+
+            groupsByDate[dateKey].push(row);
+        }
+    );
+
+
+    /*
+     * Urutkan tanggal dari yang TERBARU lebih dulu,
+     * sama seperti rekap seluruh ULP.
+     */
+
+    const sortedDateKeys =
+        Object.keys(groupsByDate).sort(
+            function(a, b) {
+
+                function toSortable(dateStr) {
+
+                    const parts =
+                        dateStr.split("/");
+
+                    return parts.length === 3
+                        ? `${parts[2]}-${parts[1]}-${parts[0]}`
+                        : "0000-00-00";
+                }
+
+                return toSortable(b).localeCompare(
+                    toSortable(a)
+                );
+            }
+        );
+
+
+    let cursorY = 74;
+
+    function ensureSpace(neededHeight) {
+
+        if (
+            cursorY + neededHeight >
+            pageHeight - marginBottom
+        ) {
+
+            doc.addPage();
+
+            cursorY = 40;
+        }
+    }
+
+
+    if (!sortedDateKeys.length) {
+
+        doc.setFontSize(11);
+
+        doc.text(
+            "Belum ada laporan untuk ULP " + ulp + ".",
+            marginLeft,
+            cursorY
+        );
+
+    } else {
+
+        sortedDateKeys.forEach(
+            function(dateKey) {
+
+                const rowsThisDate =
+                    getSortedByDateDesc(
+                        groupsByDate[dateKey]
+                    );
+
+
+                /* -----------------------------------------
+                   JUDUL TANGGAL + JUMLAH LAPORAN HARI ITU
+                ----------------------------------------- */
+
+                ensureSpace(40);
+
+                doc.setFontSize(11.5);
+
+                doc.setFont(undefined, "bold");
+
+                doc.setTextColor(15, 98, 181);
+
+                doc.text(
+                    "Tanggal: " +
+                        dateKey +
+                        "  —  Jumlah Laporan: " +
+                        rowsThisDate.length,
+                    marginLeft,
+                    cursorY
+                );
+
+                doc.setTextColor(0, 0, 0);
+
+                cursorY += 18;
+
+
+                /* -----------------------------------------
+                   TABEL RINCIAN LAPORAN ULP HARI ITU
+                ----------------------------------------- */
+
+                const bodyRows =
+                    rowsThisDate.map(
+                        function(row, index) {
+
+                            return [
+                                index + 1,
+                                row.dateText || "-",
+                                row.up3 || "-",
+                                row.device || "-",
+                                row.job || "-",
+                                row.location || "-",
+                                row.officer || "-",
+                                row.documentation ? "Ada" : "-"
+                            ];
+                        }
+                    );
+
+                doc.autoTable({
+
+                    startY: cursorY,
+
+                    head: [[
+                        "No",
+                        "Waktu",
+                        "UP3",
+                        "Perangkat",
+                        "Pekerjaan",
+                        "Lokasi",
+                        "Petugas",
+                        "Dokumentasi"
+                    ]],
+
+                    body: bodyRows,
+
+                    styles: {
+                        fontSize: 7.5,
+                        cellPadding: 4,
+                        overflow: "linebreak"
+                    },
+
+                    headStyles: {
+                        fillColor: [15, 98, 181],
+                        textColor: [255, 255, 255],
+                        fontStyle: "bold"
+                    },
+
+                    alternateRowStyles: {
+                        fillColor: [234, 243, 252]
+                    },
+
+                    columnStyles: {
+                        0: { cellWidth: 26 }
+                    },
+
+                    margin: {
+                        left: marginLeft,
+                        right: marginRight,
+                        bottom: marginBottom
+                    },
+
+                    didDrawPage:
+                        function() {
+
+                            const pageCount =
+                                doc.internal.getNumberOfPages();
+
+                            doc.setFontSize(8);
+
+                            doc.text(
+                                "Halaman " +
+                                    doc.internal.getCurrentPageInfo().pageNumber +
+                                    " / " +
+                                    pageCount,
+                                pageWidth - marginRight,
+                                pageHeight - 16,
+                                { align: "right" }
+                            );
+                        }
+                });
+
+                cursorY =
+                    doc.lastAutoTable.finalY + 22;
+            }
+        );
+    }
+
+    return doc;
+}
+
+
+function openPdfModal() {
+
+    const modal =
+        $("pdfModal");
+
+    const statusEl =
+        $("pdfStatus");
+
+    const frame =
+        $("pdfPreviewFrame");
+
+    const titleEl =
+        $("pdfModalTitle");
+
+    const descEl =
+        $("pdfModalDesc");
+
+    if (!modal) {
+        return;
+    }
+
+    /*
+     * Pastikan modal kembali ke mode "seluruh ULP"
+     * (bukan mode PDF per-ULP) setiap kali tombol
+     * "Lihat PDF" utama ditekan.
+     */
+
+    modal.dataset.pdfMode = "all";
+
+    modal.dataset.pdfUlp = "";
+
+    if (titleEl) {
+
+        titleEl.textContent =
+            "Rekap Laporan Harian (PDF)";
+    }
+
+    if (descEl) {
+
+        descEl.textContent =
+            "Direkap per tanggal — ULP yang sudah melapor pada hari itu.";
+    }
+
+    modal.classList.add(
+        "active"
+    );
+
+    if (statusEl) {
+
+        statusEl.textContent =
+            "Menyiapkan PDF...";
+
+        statusEl.style.display =
+            "block";
+    }
+
+    if (frame) {
+
+        frame.style.display =
+            "none";
+    }
+
+
+    /*
+     * Beri jeda 1 frame supaya modal & status
+     * "Menyiapkan PDF..." sempat tampil dulu
+     * sebelum proses generate PDF berjalan
+     * (untuk data yang cukup besar).
+     */
+
+    setTimeout(
+        function() {
+
+            try {
+
+                const doc =
+                    buildLaporanPdfDoc();
+
+                const blob =
+                    doc.output("blob");
+
+
+                if (currentPdfBlobUrl) {
+
+                    URL.revokeObjectURL(
+                        currentPdfBlobUrl
+                    );
+                }
+
+                currentPdfBlobUrl =
+                    URL.createObjectURL(
+                        blob
+                    );
+
+
+                if (frame) {
+
+                    frame.src =
+                        currentPdfBlobUrl;
+
+                    frame.style.display =
+                        "block";
+                }
+
+                if (statusEl) {
+
+                    statusEl.style.display =
+                        "none";
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Gagal membuat PDF:",
+                    error
+                );
+
+                if (statusEl) {
+
+                    statusEl.textContent =
+                        "Gagal membuat PDF: " +
+                        error.message;
+                }
+            }
+        },
+        50
+    );
+}
+
+
+/* =========================================================
+   BUKA MODAL PDF KHUSUS SATU ULP
+
+   Dipicu dari tombol "📄 PDF ULP" di kolom Aksi.
+   Memakai modal PDF yang sama dengan "Lihat PDF",
+   hanya judul & isinya diganti supaya hanya
+   menampilkan rekap laporan milik ULP baris terkait.
+========================================================= */
+
+function openUlpPdfModal(rowNumber) {
+
+    const row =
+        DATA.find(
+            function(item) {
+
+                return (
+                    Number(item.rowNumber) ===
+                    Number(rowNumber)
+                );
+            }
+        );
+
+
+    if (!row) {
+
+        alert(
+            "Data tidak ditemukan."
+        );
+
+        return;
+    }
+
+
+    const ulp =
+        row.ulp || "Tidak Diketahui";
+
+
+    const modal =
+        $("pdfModal");
+
+    const statusEl =
+        $("pdfStatus");
+
+    const frame =
+        $("pdfPreviewFrame");
+
+    const titleEl =
+        $("pdfModalTitle");
+
+    const descEl =
+        $("pdfModalDesc");
+
+    if (!modal) {
+        return;
+    }
+
+    modal.dataset.pdfMode = "ulp";
+
+    modal.dataset.pdfUlp = ulp;
+
+    if (titleEl) {
+
+        titleEl.textContent =
+            "Rekap Laporan ULP " + ulp + " (PDF)";
+    }
+
+    if (descEl) {
+
+        descEl.textContent =
+            "Direkap per tanggal — seluruh laporan yang masuk untuk ULP ini, diperbaharui setiap laporan baru.";
+    }
+
+    modal.classList.add(
+        "active"
+    );
+
+    if (statusEl) {
+
+        statusEl.textContent =
+            "Menyiapkan PDF...";
+
+        statusEl.style.display =
+            "block";
+    }
+
+    if (frame) {
+
+        frame.style.display =
+            "none";
+    }
+
+
+    setTimeout(
+        function() {
+
+            try {
+
+                const doc =
+                    buildUlpPdfDoc(
+                        ulp
+                    );
+
+                const blob =
+                    doc.output("blob");
+
+
+                if (currentPdfBlobUrl) {
+
+                    URL.revokeObjectURL(
+                        currentPdfBlobUrl
+                    );
+                }
+
+                currentPdfBlobUrl =
+                    URL.createObjectURL(
+                        blob
+                    );
+
+
+                if (frame) {
+
+                    frame.src =
+                        currentPdfBlobUrl;
+
+                    frame.style.display =
+                        "block";
+                }
+
+                if (statusEl) {
+
+                    statusEl.style.display =
+                        "none";
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Gagal membuat PDF ULP:",
+                    error
+                );
+
+                if (statusEl) {
+
+                    statusEl.textContent =
+                        "Gagal membuat PDF: " +
+                        error.message;
+                }
+            }
+        },
+        50
+    );
+}
+
+
+function closePdfModal() {
+
+    const modal =
+        $("pdfModal");
+
+    if (modal) {
+
+        modal.classList.remove(
+            "active"
+        );
+    }
+}
+
+
+function downloadLaporanPdf() {
+
+    try {
+
+        const modal =
+            $("pdfModal");
+
+        const mode =
+            modal ? modal.dataset.pdfMode : "all";
+
+        const ulp =
+            modal ? modal.dataset.pdfUlp : "";
+
+        const isUlpMode =
+            mode === "ulp" && ulp;
+
+        const doc =
+            isUlpMode
+                ? buildUlpPdfDoc(ulp)
+                : buildLaporanPdfDoc();
+
+        const today =
+            formatDateOnly(new Date())
+                .split("/")
+                .join("-");
+
+        const filename =
+            isUlpMode
+                ? "rekap-ulp-" +
+                  ulp
+                      .toLowerCase()
+                      .replace(/[^a-z0-9]+/g, "-")
+                      .replace(/^-+|-+$/g, "") +
+                  "-" +
+                  today +
+                  ".pdf"
+                : "data-laporan-cctv-" +
+                  today +
+                  ".pdf";
+
+        doc.save(
+            filename
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Gagal mengunduh PDF:",
+            error
+        );
+
+        alert(
+            "Gagal membuat PDF: " +
+            error.message
+        );
+    }
+}
+
+
+/* =========================================================
    DOM READY
 ========================================================= */
 
@@ -4352,6 +5433,79 @@ document.addEventListener(
 
 
         /* -----------------------------------------
+           MODAL LIHAT PDF — DATA LAPORAN
+        ----------------------------------------- */
+
+        const viewPdfBtn =
+            $("viewPdfBtn");
+
+        if (viewPdfBtn) {
+
+            viewPdfBtn.addEventListener(
+                "click",
+                openPdfModal
+            );
+        }
+
+
+        const closePdfModalX =
+            $("closePdfModal");
+
+        if (closePdfModalX) {
+
+            closePdfModalX.addEventListener(
+                "click",
+                closePdfModal
+            );
+        }
+
+
+        const closePdfModalBtn =
+            $("closePdfModalBtn");
+
+        if (closePdfModalBtn) {
+
+            closePdfModalBtn.addEventListener(
+                "click",
+                closePdfModal
+            );
+        }
+
+
+        const downloadPdfBtn =
+            $("downloadPdfBtn");
+
+        if (downloadPdfBtn) {
+
+            downloadPdfBtn.addEventListener(
+                "click",
+                downloadLaporanPdf
+            );
+        }
+
+
+        const pdfModal =
+            $("pdfModal");
+
+        if (pdfModal) {
+
+            pdfModal.addEventListener(
+                "click",
+                function(event) {
+
+                    if (
+                        event.target ===
+                        pdfModal
+                    ) {
+
+                        closePdfModal();
+                    }
+                }
+            );
+        }
+
+
+        /* -----------------------------------------
            SETTINGS DRAWER
         ----------------------------------------- */
 
@@ -4692,7 +5846,7 @@ document.addEventListener(
 
 
 /* =========================================================
-   AGAR onclick HTML BISA MEMANGGIL EDIT
+   AGAR onclick HTML BISA MEMANGGIL EDIT & PDF ULP
 ========================================================= */
 
 window.openEditModal =
@@ -4705,3 +5859,7 @@ window.closeEditModal =
 
 window.saveEdit =
     saveEdit;
+
+
+window.openUlpPdfModal =
+    openUlpPdfModal;
