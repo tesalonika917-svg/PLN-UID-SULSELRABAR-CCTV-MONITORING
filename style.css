@@ -21,7 +21,7 @@
     --danger:          #DC2626;
     --success:         #16A34A;
 
-    /* -------- Superfícies -------- */
+    /* -------- Permukaan -------- */
     --bg-app:          #F3F7FC;
     --bg-card:         #FFFFFF;
     --bg-sidebar:      linear-gradient(180deg, var(--pln-navy) 0%, var(--pln-navy-dark) 100%);
@@ -43,13 +43,9 @@
    RESET DASAR
 ========================================================= */
 
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-html, body {
-    height: 100%;
-}
+html, body { height: 100%; }
 
 body {
     margin: 0;
@@ -77,9 +73,7 @@ a {
     text-decoration: none;
 }
 
-a:hover {
-    text-decoration: underline;
-}
+a:hover { text-decoration: underline; }
 
 button {
     font-family: inherit;
@@ -91,22 +85,12 @@ input, select, textarea, button {
     font-size: 13px;
 }
 
-::selection {
-    background: var(--pln-sky-2);
-}
+::selection { background: var(--pln-sky-2); }
 
 /* Scrollbar */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-::-webkit-scrollbar-thumb {
-    background: #C6D6EA;
-    border-radius: 10px;
-}
-::-webkit-scrollbar-track {
-    background: transparent;
-}
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #C6D6EA; border-radius: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
 
 /* =========================================================
    LAYOUT UTAMA
@@ -234,9 +218,7 @@ input, select, textarea, button {
     margin: 16px 10px 6px;
 }
 
-.nav-section:first-child {
-    margin-top: 4px;
-}
+.nav-section:first-child { margin-top: 4px; }
 
 .nav-link {
     display: flex;
@@ -292,9 +274,7 @@ input, select, textarea, button {
     font-size: 12.5px;
 }
 
-.status-connected {
-    color: #7BE1A0 !important;
-}
+.status-connected { color: #7BE1A0 !important; }
 
 /* =========================================================
    MAIN
@@ -338,9 +318,7 @@ input, select, textarea, button {
     border-color: var(--pln-sky-2);
 }
 
-#mobileMenu {
-    display: none;
-}
+#mobileMenu { display: none; }
 
 .topbar-title {
     font-size: 17px;
@@ -394,9 +372,7 @@ input, select, textarea, button {
     padding: 26px 28px 40px;
 }
 
-.view.active {
-    display: block;
-}
+.view.active { display: block; }
 
 .page-header {
     display: flex;
@@ -411,9 +387,7 @@ input, select, textarea, button {
     margin-bottom: 4px;
 }
 
-.page-header p {
-    font-size: 13px;
-}
+.page-header p { font-size: 13px; }
 
 .header-actions {
     display: flex;
@@ -437,9 +411,7 @@ input, select, textarea, button {
     white-space: nowrap;
 }
 
-.btn:active {
-    transform: translateY(1px);
-}
+.btn:active { transform: translateY(1px); }
 
 .btn-primary {
     background: var(--pln-blue);
@@ -447,9 +419,7 @@ input, select, textarea, button {
     box-shadow: 0 8px 18px rgba(15, 98, 181, 0.28);
 }
 
-.btn-primary:hover {
-    background: #0D57A0;
-}
+.btn-primary:hover { background: #0D57A0; }
 
 .btn-secondary {
     background: var(--white);
@@ -457,9 +427,7 @@ input, select, textarea, button {
     border-color: var(--line);
 }
 
-.btn-secondary:hover {
-    background: var(--pln-sky);
-}
+.btn-secondary:hover { background: var(--pln-sky); }
 
 .btn-danger {
     background: #FEECEC;
@@ -467,9 +435,7 @@ input, select, textarea, button {
     border-color: #FBD5D5;
 }
 
-.btn-danger:hover {
-    background: #FCDFDF;
-}
+.btn-danger:hover { background: #FCDFDF; }
 
 .btn.full {
     width: 100%;
@@ -485,9 +451,7 @@ input, select, textarea, button {
     padding: 6px 4px;
 }
 
-.text-btn:hover {
-    text-decoration: underline;
-}
+.text-btn:hover { text-decoration: underline; }
 
 /* =========================================================
    KPI CARDS
@@ -517,15 +481,7 @@ input, select, textarea, button {
     box-shadow: 0 16px 32px rgba(10, 42, 84, 0.10);
 }
 
-/* -----------------------------------------
-   TITIK INDIKATOR (pengganti ikon ▤ ◷ ◉ ▦ ✓ ✕)
-
-   Glyph unicode lama disembunyikan (font-size: 0)
-   dan digantikan lingkaran kecil bewarna. Tidak
-   perlu ubah HTML — teks lama tetap ada tapi
-   tidak lagi terlihat.
------------------------------------------ */
-
+/* Titik indikator (glyph unicode lama disembunyikan dengan font-size: 0) */
 .kpi-icon {
     width: 12px;
     height: 12px;
@@ -556,17 +512,8 @@ input, select, textarea, button {
     font-variant-numeric: tabular-nums;
 }
 
-
-/* -----------------------------------------
-   TOTAL LAPORAN — ANGKA UTAMA
-
-   Dibuat paling besar & paling terang supaya
-   jadi fokus pertama saat dashboard dibuka.
------------------------------------------ */
-
-.kpi-card--hero {
-    border-top: 3px solid var(--pln-blue);
-}
+/* Total Laporan — angka utama */
+.kpi-card--hero { border-top: 3px solid var(--pln-blue); }
 
 .kpi-card--hero .kpi-icon {
     background: var(--pln-blue);
@@ -579,57 +526,35 @@ input, select, textarea, button {
     text-shadow: 0 0 18px rgba(15, 98, 181, 0.35);
 }
 
-
-/* -----------------------------------------
-   CCTV ON / CCTV OFF — LAMPU STATUS
-
-   Titik indikator menyala berdenyut (glow
-   animasi) hijau untuk ON dan merah untuk OFF,
-   meniru lampu status perangkat sungguhan.
------------------------------------------ */
-
+/* CCTV ON / OFF — lampu status berdenyut */
 .kpi-card--on .kpi-icon {
     background: var(--success);
     animation: kpiPulseOn 2.2s ease-in-out infinite;
 }
 
-.kpi-card--on strong {
-    color: var(--success);
-}
+.kpi-card--on strong { color: var(--success); }
 
 .kpi-card--off .kpi-icon {
     background: var(--danger);
     animation: kpiPulseOff 2.2s ease-in-out infinite;
 }
 
-.kpi-card--off strong {
-    color: var(--danger);
-}
+.kpi-card--off strong { color: var(--danger); }
 
 @keyframes kpiPulseOn {
-    0%, 100% {
-        box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.16), 0 0 6px rgba(22, 163, 74, 0.55);
-    }
-    50% {
-        box-shadow: 0 0 0 7px rgba(22, 163, 74, 0.05), 0 0 15px rgba(22, 163, 74, 0.95);
-    }
+    0%, 100% { box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.16), 0 0 6px rgba(22, 163, 74, 0.55); }
+    50%      { box-shadow: 0 0 0 7px rgba(22, 163, 74, 0.05), 0 0 15px rgba(22, 163, 74, 0.95); }
 }
 
 @keyframes kpiPulseOff {
-    0%, 100% {
-        box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.16), 0 0 6px rgba(220, 38, 38, 0.55);
-    }
-    50% {
-        box-shadow: 0 0 0 7px rgba(220, 38, 38, 0.05), 0 0 15px rgba(220, 38, 38, 0.95);
-    }
+    0%, 100% { box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.16), 0 0 6px rgba(220, 38, 38, 0.55); }
+    50%      { box-shadow: 0 0 0 7px rgba(220, 38, 38, 0.05), 0 0 15px rgba(220, 38, 38, 0.95); }
 }
 
 /* Hormati pengguna yang mematikan animasi di OS-nya */
 @media (prefers-reduced-motion: reduce) {
     .kpi-card--on .kpi-icon,
-    .kpi-card--off .kpi-icon {
-        animation: none;
-    }
+    .kpi-card--off .kpi-icon { animation: none; }
 }
 
 /* =========================================================
@@ -654,9 +579,7 @@ input, select, textarea, button {
     flex-wrap: wrap;
 }
 
-.panel-header h2 {
-    font-size: 15.5px;
-}
+.panel-header h2 { font-size: 15.5px; }
 
 .panel-header p {
     font-size: 12.5px;
@@ -693,9 +616,7 @@ input, select, textarea, button {
     box-shadow: 0 0 0 3px rgba(46, 140, 224, 0.15);
 }
 
-.chart-filter-range {
-    gap: 6px;
-}
+.chart-filter-range { gap: 6px; }
 
 /* =========================================================
    ACTIVITY LIST
@@ -715,9 +636,7 @@ input, select, textarea, button {
     border-bottom: 1px solid var(--line);
 }
 
-.activity-item:last-child {
-    border-bottom: none;
-}
+.activity-item:last-child { border-bottom: none; }
 
 .activity-time {
     font-size: 12px;
@@ -809,9 +728,7 @@ tbody td {
     vertical-align: middle;
 }
 
-tbody tr:hover {
-    background: #F7FAFD;
-}
+tbody tr:hover { background: #F7FAFD; }
 
 .action-btn {
     border: 1px solid var(--pln-sky-2);
@@ -829,35 +746,107 @@ tbody tr:hover {
     color: var(--white);
 }
 
-/* -----------------------------------------
-   GRUP TOMBOL AKSI (Edit + PDF ULP)
-
-   Menyusun tombol Edit dan tombol PDF ULP
-   secara vertikal di dalam kolom Aksi, agar
-   rapi tanpa membuat kolom terlalu lebar.
------------------------------------------ */
-
+/* Grup tombol Aksi (Edit + PDF ULP) */
 .aksi-btn-group {
     display: flex;
-    flex-direction: column;
     gap: 6px;
-    align-items: stretch;
+    flex-wrap: wrap;
 }
 
-.aksi-btn-group .action-btn {
-    width: 100%;
-    text-align: center;
-}
-
+/* Tombol "PDF ULP" — warna beda dari Edit */
 .action-btn-pdf {
-    border-color: #FBE7B8;
-    background: #FFF7E6;
-    color: #B4790C;
+    border-color: #FCD9B8;
+    background: #FFF1E0;
+    color: #C2560A;
 }
 
 .action-btn-pdf:hover {
-    background: var(--pln-yellow);
-    color: var(--pln-navy-dark);
+    background: #F97316;
+    color: var(--white);
+    border-color: #F97316;
+}
+
+/* =========================================================
+   REKAP UP3 (di bawah grafik donat)
+
+   Selalu 2 KOLOM kiri-kanan (berpasangan), termasuk di HP.
+   Tanpa max-height / overflow, jadi semua UP3 langsung terlihat.
+   minmax(0, 1fr) mencegah nama panjang melebarkan kolom.
+========================================================= */
+
+.up3-recap-list {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--line);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2px 16px;
+}
+
+/* Kartu total membentang di atas kedua kolom */
+.up3-recap-total {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 4px 10px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--line);
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--pln-navy);
+}
+
+.up3-recap-total strong {
+    font-size: 15px;
+    color: var(--pln-blue);
+}
+
+.up3-recap-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 4px;
+    border-bottom: 1px solid var(--line);
+    font-size: 12.5px;
+    min-width: 0;
+}
+
+/* Dua baris terakhir tidak perlu garis bawah */
+.up3-recap-row:last-child { border-bottom: none; }
+
+.up3-recap-dot {
+    width: 10px;
+    height: 10px;
+    min-width: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.up3-recap-name {
+    flex: 1;
+    min-width: 0;
+    color: var(--ink);
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.up3-recap-count {
+    font-weight: 800;
+    color: var(--pln-navy);
+    font-variant-numeric: tabular-nums;
+}
+
+body.dark .up3-recap-total strong { color: var(--pln-blue-light); }
+
+@media (max-width: 560px) {
+
+    .up3-recap-list { gap: 2px 10px; }
+
+    .up3-recap-row {
+        font-size: 11.5px;
+        gap: 6px;
+    }
 }
 
 /* =========================================================
@@ -870,9 +859,7 @@ tbody tr:hover {
     gap: 18px;
 }
 
-.chart-box {
-    margin-bottom: 0;
-}
+.chart-box { margin-bottom: 0; }
 
 .chart-container {
     position: relative;
@@ -887,9 +874,7 @@ tbody tr:hover {
 }
 
 /* Dashboard mini-chart */
-#view-dashboard .chart-container {
-    height: 240px;
-}
+#view-dashboard .chart-container { height: 240px; }
 
 /* =========================================================
    PANDUAN
@@ -945,9 +930,7 @@ tbody tr:hover {
     transition: transform 0.25s ease;
 }
 
-.drawer-overlay.active .drawer {
-    transform: translateX(0);
-}
+.drawer-overlay.active .drawer { transform: translateX(0); }
 
 .drawer-header {
     display: flex;
@@ -958,9 +941,7 @@ tbody tr:hover {
     background: var(--pln-sky);
 }
 
-.drawer-header h2 {
-    font-size: 16px;
-}
+.drawer-header h2 { font-size: 16px; }
 
 .drawer-header p {
     font-size: 12px;
@@ -1058,9 +1039,7 @@ tbody tr:hover {
     transition: transform 0.2s ease;
 }
 
-.modal-overlay.active .edit-modal {
-    transform: translateY(0) scale(1);
-}
+.modal-overlay.active .edit-modal { transform: translateY(0) scale(1); }
 
 .modal-header {
     display: flex;
@@ -1071,9 +1050,7 @@ tbody tr:hover {
     border-bottom: 1px solid var(--line);
 }
 
-.modal-header h2 {
-    font-size: 16px;
-}
+.modal-header h2 { font-size: 16px; }
 
 .modal-header p {
     font-size: 12px;
@@ -1121,7 +1098,7 @@ tbody tr:hover {
 }
 
 /* =========================================================
-   MODAL LIHAT PDF — DATA LAPORAN
+   MODAL LIHAT PDF
 ========================================================= */
 
 .pdf-modal {
@@ -1162,10 +1139,7 @@ tbody tr:hover {
 }
 
 @media (max-width: 640px) {
-
-    .pdf-modal {
-        height: 92vh;
-    }
+    .pdf-modal { height: 92vh; }
 }
 
 /* =========================================================
@@ -1174,24 +1148,16 @@ tbody tr:hover {
 
 @media (max-width: 1100px) {
 
-    .kpi-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
 
-    .chart-grid {
-        grid-template-columns: 1fr;
-    }
+    .chart-grid { grid-template-columns: 1fr; }
 
-    .guide-grid {
-        grid-template-columns: 1fr;
-    }
+    .guide-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 860px) {
 
-    #mobileMenu {
-        display: flex;
-    }
+    #mobileMenu { display: flex; }
 
     .sidebar {
         position: fixed;
@@ -1202,30 +1168,20 @@ tbody tr:hover {
         box-shadow: var(--shadow-pop);
     }
 
-    .sidebar.open {
-        transform: translateX(0);
-    }
+    .sidebar.open { transform: translateX(0); }
 
-    .search-box {
-        min-width: 140px;
-    }
+    .search-box { min-width: 140px; }
 
-    .view {
-        padding: 18px 16px 32px;
-    }
+    .view { padding: 18px 16px 32px; }
 
-    .kpi-grid {
-        grid-template-columns: 1fr 1fr;
-    }
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
 
     .activity-item {
         grid-template-columns: 1fr;
         gap: 4px;
     }
 
-    .activity-location {
-        text-align: left;
-    }
+    .activity-location { text-align: left; }
 }
 
 /* =========================================================
@@ -1252,18 +1208,12 @@ body.dark .icon-btn {
     color: var(--white);
 }
 
-body.dark thead th {
-    color: var(--white);
-}
+body.dark thead th { color: var(--white); }
 
-body.dark tbody tr:hover {
-    background: #0F2745;
-}
+body.dark tbody tr:hover { background: #0F2745; }
 
 body.dark .drawer,
-body.dark .edit-modal {
-    background: var(--bg-card);
-}
+body.dark .edit-modal { background: var(--bg-card); }
 
 body.dark .drawer-header,
 body.dark .modal-header {
@@ -1279,9 +1229,7 @@ body.dark .form-group textarea {
     border-color: var(--line);
 }
 
-body.dark h1, body.dark h2, body.dark h3 {
-    color: var(--white);
-}
+body.dark h1, body.dark h2, body.dark h3 { color: var(--white); }
 
 body.dark .chart-filter input[type="month"] {
     background: #0B1B33;
