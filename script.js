@@ -9,7 +9,7 @@ const STORAGE_URL = "cctv_uid_sstb_csv_url";
 
 /* Google Apps Script Web App (simpan hasil EDIT ke Spreadsheet) */
 const DEFAULT_API_URL =
-    "https://script.google.com/macros/s/AKfycbz-zrsdF8UnVFVfn_k8pbLFR-uB4r6zmnI66H03MXRI8afCdLkbw1GxMOUAxIR7mimY/exec";
+    "https://script.google.com/macros/s/AKfycby4MlpwiYL1FWueQo7wmuSGe1L41rIVs4rlY3YxI3_2pzdqP5rfpc0jhG-D3guKFuY2/exec";
 
 /*
  * Bulan yang dicetak rinciannya per hari di Console (F12)
