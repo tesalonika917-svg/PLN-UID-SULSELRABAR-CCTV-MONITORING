@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0A2A54">
+    <title>Logsheet Monitoring CCTV Online UID SSTB</title>
+
+    <!-- Font Inter (bila offline otomatis memakai font sistem) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- ======================================
+     KUMPULAN IKON (SVG sprite, tidak mengubah fungsi)
+======================================= -->
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+        <symbol id="i-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></symbol>
+        <symbol id="i-video" viewBox="0 0 24 24"><path d="m22 8-6 4 6 4V8Z"/><rect x="2" y="6" width="14" height="12" rx="2"/></symbol>
+        <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></symbol>
+        <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+        <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+        <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></symbol>
+        <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+        <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></symbol>
+        <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+        <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+        <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></symbol>
+        <symbol id="i-gear" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+        <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></symbol>
+        <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol>
+        <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></symbol>
+        <symbol id="i-calendar" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/></symbol>
+        <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+        <symbol id="i-activity" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></symbol>
+        <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol>
+        <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></symbol>
+    </defs>
+</svg>
+
+<div class="app">
+
+    <!-- ======================================
+         SIDEBAR
+    ======================================= -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+            <div class="brand-logo">
+                <img src="LogoPLN.jpg" alt="Logo PLN" class="brand-logo-img">
+            </div>
+            <div class="brand-text">
+                <strong>SALAMA'</strong>
+                <span>HSSE UID SULSELRABAR</span>
+            </div>
+        </div>
+
+        <div class="profile">
+            <div class="avatar">A</div>
+            <div>
+                <strong>Admin</strong>
+                <span>Monitoring CCTV</span>
+            </div>
+        </div>
+
+        <nav class="navigation">
+
+            <div class="nav-section">Menu Utama</div>
+
+            <!-- ===== CCTV ===== -->
+            <div class="nav-group" data-group="cctv">
+                <button type="button" class="nav-group-btn">
+                    <span><svg class="ic"><use href="#i-video"/></svg></span><span>CCTV</span><i class="chev"><svg class="ic"><use href="#i-chevron"/></svg></i>
+                </button>
+                <div class="nav-group-items">
+                    <a href="#" class="nav-link nav-sub active" data-view="dashboard"><span class="sub-dot"></span><span>Dashboard</span></a>
+                    <a href="#" class="nav-link nav-sub" data-view="monitoring"><span class="sub-dot"></span><span>Monitoring Harian</span></a>
+                    <a href="#" class="nav-link nav-sub" data-view="laporan"><span class="sub-dot"></span><span>Logsheet</span></a>
+                    <a href="#" class="nav-link nav-sub" data-view="grafik"><span class="sub-dot"></span><span>Visualisasi Grafik</span></a>
+                </div>
+            </div>
+
+            <!-- ===== CCV ===== -->
+            <div class="nav-group" data-group="ccv">
+                <button type="button" class="nav-group-btn">
+                    <span><svg class="ic"><use href="#i-clipboard"/></svg></span><span>CCV</span><i class="chev"><svg class="ic"><use href="#i-chevron"/></svg></i>
+                </button>
+                <div class="nav-group-items">
+                    <a href="#" class="nav-link nav-sub" data-view="ccv"><span class="sub-dot"></span><span>Visualisasi Grafik</span></a>
+                </div>
+            </div>
+
+            <!-- ===== 4DX ===== -->
+            <div class="nav-group" data-group="4dx">
+                <button type="button" class="nav-group-btn">
+                    <span><svg class="ic"><use href="#i-target"/></svg></span><span>4DX</span><i class="chev"><svg class="ic"><use href="#i-chevron"/></svg></i>
+                </button>
+                <div class="nav-group-items">
+
+                    <div class="nav-group nav-group-2">
+                        <button type="button" class="nav-group-btn">
+                            <span>WIG 1</span><i class="chev"><svg class="ic"><use href="#i-chevron"/></svg></i>
+                        </button>
+                        <div class="nav-group-items">
+                            <a href="#" class="nav-link nav-sub nav-sub2" data-view="4dx-lm11"><span>LM 1.1</span></a>
+                            <a href="#" class="nav-link nav-sub nav-sub2" data-view="4dx-lm12"><span>LM 1.2</span></a>
+                            <a href="#" class="nav-link nav-sub nav-sub2" data-view="4dx-lm13"><span>LM 1.3</span></a>
+                        </div>
+                    </div>
+
+                    <div class="nav-group nav-group-2">
+                        <button type="button" class="nav-group-btn">
+                            <span>WIG 2</span><i class="chev"><svg class="ic"><use href="#i-chevron"/></svg></i>
+                        </button>
+                        <div class="nav-group-items">
+                            <a href="#" class="nav-link nav-sub nav-sub2" data-view="4dx-lm21"><span>LM 2.1</span></a>
+                            <a href="#" class="nav-link nav-sub nav-sub2" data-view="4dx-lm22"><span>LM 2.2</span></a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ===== SAFETY BRIEFING ===== -->
+            <a href="#" class="nav-link" data-view="safety">
+                <span><svg class="ic"><use href="#i-shield"/></svg></span><span>Laporan Safety Briefing &amp; Respon Pesan Keselamatan</span>
+            </a>
+
+            <div class="nav-section">Lainnya</div>
+
+            <a href="#" class="nav-link" data-view="panduan">
+                <span><svg class="ic"><use href="#i-help"/></svg></span>
+                <span>Panduan</span>
+            </a>
+
+            <div class="nav-section">Status Sistem</div>
+
+            <div class="system-status">
+                <div class="status-row">
+                    <span>Data Aktif</span>
+                    <strong id="dataActive">0</strong>
+                </div>
+                <div class="status-row">
+                    <span>Status Data</span>
+                    <strong class="status-connected" id="dataStatus">Terhubung</strong>
+                </div>
+            </div>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- ======================================
+         MAIN
+    ======================================= -->
+
+    <main class="main">
+
+        <!-- TOPBAR -->
+
+        <header class="topbar">
+
+            <button class="icon-btn" id="mobileMenu" title="Menu"><svg class="ic"><use href="#i-menu"/></svg></button>
+
+            <div class="topbar-title">Dashboard</div>
+
+            <div class="topbar-actions">
+
+                <div class="search-box">
+                    <span><svg class="ic"><use href="#i-search"/></svg></span>
+                    <input type="text" id="globalSearch" placeholder="Cari data...">
+                </div>
+
+                <button class="icon-btn" id="themeToggle" title="Tema">
+                    <svg class="ic ico-moon"><use href="#i-moon"/></svg>
+                    <svg class="ic ico-sun"><use href="#i-sun"/></svg>
+                </button>
+
+                <button class="icon-btn" id="settingsBtn" title="Pengaturan"><svg class="ic"><use href="#i-gear"/></svg></button>
+
+            </div>
+
+        </header>
+
+
+        <!-- ======================================
+             DASHBOARD
+        ======================================= -->
+
+        <section class="view active" id="view-dashboard">
+
+            <div class="page-header">
+                <div>
+                    <h1>Dashboard</h1>
+                    <p>Logsheet Monitoring CCTV Online UID SSTB</p>
+                </div>
+
+                <button class="btn btn-primary" id="refreshBtnMain"><svg class="ic"><use href="#i-refresh"/></svg> Refresh</button>
+            </div>
+
+
+            <div class="kpi-grid">
+
+                <div class="kpi-card kpi-card--hero">
+                    <div class="kpi-icon"></div>
+                    <div>
+                        <span>Total Laporan</span>
+                        <strong id="totalData">0</strong>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-icon"></div>
+                    <div>
+                        <span>Laporan Hari Ini</span>
+                        <strong id="todayData">0</strong>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-icon"></div>
+                    <div>
+                        <span>Jumlah Perangkat CCTV</span>
+                        <strong id="totalCctv"></strong>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-icon"></div>
+                    <div>
+                        <span>Unit</span>
+                        <strong id="totalUnit"></strong>
+                    </div>
+                </div>
+
+                <div class="kpi-card kpi-card--on">
+                    <div class="kpi-icon"></div>
+                    <div>
+                        <span>CCTV ON</span>
+                        <strong id="cctvOn">0</strong>
+                    </div>
+                </div>
+
+                <div class="kpi-card kpi-card--off">
+                    <div class="kpi-icon"></div>
+                    <div>
+                        <span>CCTV OFF</span>
+                        <strong id="cctvOff">0</strong>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- PEKERJAAN PER UP3 -->
+
+            <div class="panel chart-box chart-full">
+
+                <div class="panel-header">
+                    <div>
+                        <h2>Pekerjaan per UP3</h2>
+                        <p>Distribusi pekerjaan berdasarkan UP3.</p>
+                    </div>
+
+                    <div class="chart-filter" data-filter="dashboardUp3"></div>
+                </div>
+
+                <div class="chart-container chart-doughnut">
+                    <canvas id="dashboardUp3Chart"></canvas>
+                </div>
+
+                <div class="up3-recap-list" id="dashboardUp3RecapList"></div>
+
+            </div>
+
+
+            <!-- ITEM PEKERJAAN -->
+
+            <div class="panel chart-box chart-full">
+
+                <div class="panel-header">
+                    <div>
+                        <h2>Item Pekerjaan</h2>
+                        <p>Jumlah laporan berdasarkan nama pekerjaan.</p>
+                    </div>
+
+                    <div class="chart-filter" data-filter="dashboardJob"></div>
+                </div>
+
+                <div class="chart-scroll">
+                    <div class="chart-container">
+                        <canvas id="dashboardJobChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- PEKERJAAN PER ULP -->
+
+            <div class="panel chart-box chart-full">
+
+                <div class="panel-header">
+                    <div>
+                        <h2>Pekerjaan per ULP</h2>
+                        <p>Distribusi pekerjaan berdasarkan ULP.</p>
+                    </div>
+
+                    <div class="chart-filter" data-filter="dashboardUnit"></div>
+                </div>
+
+                <div class="chart-scroll">
+                    <div class="chart-container">
+                        <canvas id="dashboardUnitChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="panel">
+
+                <div class="panel-header">
+                    <div>
+                        <h2>Aktivitas Terbaru</h2>
+                        <p>Data monitoring CCTV terbaru.</p>
+                    </div>
+
+                    <button class="text-btn" data-view-target="laporan">Lihat Semua</button>
+                </div>
+
+                <div class="activity-list" id="recentList"></div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ======================================
+             MONITORING HARIAN
+        ======================================= -->
+
+        <section class="view" id="view-monitoring">
+
+            <div class="page-header">
+                <div>
+                    <h1>Monitoring Harian</h1>
+                    <p>Monitoring pekerjaan CCTV berdasarkan data Spreadsheet.</p>
+                </div>
+            </div>
+
+            <div class="panel">
+
+                <div class="toolbar">
+                    <div class="search-box">
+                        <span><svg class="ic"><use href="#i-search"/></svg></span>
+                        <input type="text" id="monitoringSearch" placeholder="Cari monitoring...">
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Tanggal & Waktu</th>
+                            <th>UP3</th>
+                            <th>ULP</th>
+                            <th>Perangkat</th>
+                            <th>No. Formulir WP</th>
+                            <th>Pekerjaan</th>
+                            <th>Lokasi</th>
+                            <th>Petugas</th>
+                        </tr>
+                        </thead>
+                        <tbody id="monitoringTable"></tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ======================================
+             Logsheet 
+        ======================================= -->
+
+        <section class="view" id="view-laporan">
+
+            <div class="page-header">
+
+                <div>
+                    <h1>Logsheet</h1>
+                    <p>Seluruh data logsheet monitoring CCTV.</p>
+                </div>
+
+                <div class="header-actions">
+                    <button class="btn btn-secondary" id="settingsBtnLaporan"><svg class="ic"><use href="#i-gear"/></svg> Pengaturan</button>
+                    <button class="btn btn-primary" id="exportBtn"><svg class="ic"><use href="#i-download"/></svg> Export CSV</button>
+                    <button class="btn btn-primary" id="viewPdfBtn"><svg class="ic"><use href="#i-file"/></svg> Lihat PDF</button>
+
+                    <div class="month-pdf-box">
+                        <input type="month" id="laporanPdfMonth" title="Pilih bulan laporan">
+                        <button class="btn btn-primary" id="viewMonthPdfBtn"><svg class="ic"><use href="#i-calendar"/></svg> PDF Bulanan</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="panel">
+
+                <div class="toolbar">
+
+                    <div class="search-box">
+                        <span><svg class="ic"><use href="#i-search"/></svg></span>
+                        <input type="text" id="laporanSearch" placeholder="Cari laporan...">
+                    </div>
+
+                    <div class="result-count" id="resultCount">0 data</div>
+
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="report-table">
+                        <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Tanggal & Waktu</th>
+                            <th>UP3</th>
+                            <th>ULP</th>
+                            <th>Perangkat</th>
+                            <th>No. Formulir WP</th>
+                            <th>Pekerjaan</th>
+                            <th>Lokasi</th>
+                            <th>Petugas</th>
+                            <th>Dokumentasi CCTV</th>
+                            <th>Aksi</th>
+                        </tr>
+                        </thead>
+                        <tbody id="laporanTable"></tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ======================================
+             GRAFIK
+        ======================================= -->
+
+        <section class="view" id="view-grafik">
+
+            <div class="page-header">
+                <div>
+                    <h1>Visualisasi Grafik</h1>
+                    <p>Visualisasi pekerjaan berdasarkan data Spreadsheet.</p>
+                </div>
+            </div>
+
+            <div class="chart-grid">
+
+                <!-- PEKERJAAN PER HARI -->
+
+                <div class="panel chart-box">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <h2>Pekerjaan per Hari</h2>
+                            <p>Jumlah pekerjaan berdasarkan tanggal pada bulan yang dipilih.</p>
+                        </div>
+
+                        <div class="chart-filter">
+                            <label for="dailyChartMonth">Bulan</label>
+                            <input type="month" id="dailyChartMonth">
+                        </div>
+
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="dailyChart"></canvas>
+                    </div>
+
+                    <div class="up3-recap-list" id="dailyRecapList"></div>
+
+                </div>
+
+
+                <!-- PEKERJAAN PER UP3 -->
+
+                <div class="panel chart-box">
+
+                    <div class="panel-header">
+                        <div>
+                            <h2>Pekerjaan per UP3</h2>
+                            <p>Distribusi pekerjaan berdasarkan UP3.</p>
+                        </div>
+
+                        <div class="chart-filter" data-filter="up3"></div>
+                    </div>
+
+                    <div class="chart-container chart-doughnut">
+                        <canvas id="up3Chart"></canvas>
+                    </div>
+
+                    <div class="up3-recap-list" id="up3RecapList"></div>
+
+                </div>
+
+
+                <!-- PEKERJAAN PER ULP -->
+
+                <div class="panel chart-box chart-full">
+
+                    <div class="panel-header">
+                        <div>
+                            <h2>Pekerjaan per ULP</h2>
+                            <p>Distribusi pekerjaan berdasarkan ULP.</p>
+                        </div>
+
+                        <div class="chart-filter" data-filter="unit"></div>
+                    </div>
+
+                    <div class="chart-scroll">
+                        <div class="chart-container">
+                            <canvas id="unitChart"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <!-- ITEM PEKERJAAN -->
+
+                <div class="panel chart-box chart-full">
+
+                    <div class="panel-header">
+                        <div>
+                            <h2>Item Pekerjaan</h2>
+                            <p>Jumlah laporan berdasarkan nama pekerjaan.</p>
+                        </div>
+
+                        <div class="chart-filter" data-filter="job"></div>
+                    </div>
+
+                    <div class="chart-scroll">
+                        <div class="chart-container">
+                            <canvas id="jobChart"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <!-- PERANGKAT CCTV -->
+
+                <div class="panel chart-box">
+
+                    <div class="panel-header">
+                        <div>
+                            <h2>Perangkat CCTV</h2>
+                            <p>Jumlah laporan berdasarkan perangkat CCTV.</p>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="deviceChart"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ======================================
+             CCV
+        ======================================= -->
+
+        <section class="view" id="view-ccv">
+
+            <div class="page-header">
+                <div>
+                    <h1>CCV</h1>
+                    <p>Visualisasi CCV UID Sulselrabar berdasarkan data Spreadsheet CCV.</p>
+                </div>
+
+                <div class="header-actions">
+                    <div class="ccv-year-box">
+                        <label for="ccvYear">Tahun</label>
+                        <select id="ccvYear">
+                            <option value="all">Semua Tahun</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-secondary" id="ccvSampleBtn" type="button">Gunakan Data Contoh</button>
+                    <button class="btn btn-primary" id="ccvRefreshBtn" type="button"><svg class="ic"><use href="#i-refresh"/></svg> Refresh</button>
+                </div>
+            </div>
+
+            <div class="panel">
+
+                <div class="form-group">
+                    <label for="ccvCsvUrl">URL Google Sheets CSV (data CCV)</label>
+                    <div class="ccv-source-row">
+                        <input type="text" id="ccvCsvUrl"
+                               placeholder="https://docs.google.com/spreadsheets/d/.../gviz/tq?tqx=out:csv&gid=...">
+                        <button class="btn btn-primary" id="ccvConnectBtn" type="button">Hubungkan</button>
+                    </div>
+                </div>
+
+                <div class="status-message" id="ccvStatus" style="margin-top:10px;">Menunggu koneksi...</div>
+
+                <div class="ccv-source-hint">
+                    Kolom yang dibaca: <code>Timestamp</code>, <code>Bulan</code>,
+                    <code>Jabatan/Posisi Observer</code>, <code>Nama Unit Pelaksana</code>,
+                    <code>Nama Unit Layanan Pelanggan</code>,
+                    <code>Pilih salah satu dari Top 3 Risk Containment</code>.
+                    Satu baris = satu laporan CCV.
+                </div>
+
+            </div>
+
+            <div class="ccv-layout">
+
+                <div class="panel ccv-p-bulan">
+                    <h2 class="ccv-title">Kumulatif CCV UID Sulselrabar</h2>
+                    <div class="ccv-box ccv-box-bulan"><canvas id="ccvBulananChart"></canvas></div>
+                </div>
+
+                <div class="panel ccv-p-unit">
+                    <h2 class="ccv-title">Kumulatif Unit Pelaksana (UP2D/UP3)</h2>
+                    <div class="ccv-box ccv-box-unit"><canvas id="ccvUnitChart"></canvas></div>
+                </div>
+
+                <div class="panel ccv-p-risk">
+                    <h2 class="ccv-title">Persentase Risk Containment</h2>
+                    <div class="ccv-donut-wrap">
+                        <div class="ccv-donut-box"><canvas id="ccvRiskChart"></canvas></div>
+                        <div class="ccv-legend" id="ccvRiskLegend"></div>
+                    </div>
+                </div>
+
+                <div class="panel ccv-p-observer">
+                    <h2 class="ccv-title">Total Observer</h2>
+                    <div class="ccv-box ccv-box-observer"><canvas id="ccvObserverChart"></canvas></div>
+                </div>
+
+                <div class="panel ccv-p-ulp">
+                    <h2 class="ccv-title">Kumulatif Unit Layanan (ULP)</h2>
+                    <div class="ccv-scroll">
+                        <div class="ccv-box ccv-box-ulp"><canvas id="ccvUlpChart"></canvas></div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ======================================
+             PANDUAN
+        ======================================= -->
+
+        <section class="view" id="view-panduan">
+
+            <div class="page-header">
+                <div>
+                    <h1>Panduan</h1>
+                    <p>Panduan penggunaan Logsheet Monitoring CCTV Online UID SSTB.</p>
+                </div>
+            </div>
+
+            <div class="guide-grid">
+
+                <div class="panel guide-card">
+                    <div class="guide-ico"><svg class="ic"><use href="#i-video"/></svg></div>
+                    <h2>CCTV</h2>
+                    <p>
+                        Kelompok menu CCTV berisi Dashboard, Monitoring Harian,
+                        Data Laporan dan Visualisasi Grafik. Dashboard menampilkan
+                        ringkasan data, Monitoring Harian menampilkan pekerjaan
+                        berdasarkan tanggal, UP3, ULP, perangkat, nomor formulir WP,
+                        lokasi dan petugas.
+                    </p>
+                </div>
+
+                <div class="panel guide-card">
+                    <div class="guide-ico"><svg class="ic"><use href="#i-file"/></svg></div>
+                    <h2>Data Laporan</h2>
+                    <p>
+                        Menampilkan seluruh data dari Spreadsheet. Tombol Edit digunakan
+                        untuk menambahkan atau mengubah informasi temuan. Tombol PDF ULP
+                        membuat rekap laporan harian khusus ULP terkait. Tombol PDF
+                        Bulanan membuat rekap seluruh laporan pada bulan yang dipilih.
+                    </p>
+                </div>
+
+                <div class="panel guide-card">
+                    <div class="guide-ico"><svg class="ic"><use href="#i-gear"/></svg></div>
+                    <h2>Edit Temuan</h2>
+                    <p>
+                        Data yang dapat diedit adalah Deskripsi Temuan, Waktu Temuan,
+                        Dokumentasi Temuan, Tindak Lanjut dan Keterangan.
+                    </p>
+                </div>
+
+                <div class="panel guide-card">
+                    <div class="guide-ico"><svg class="ic"><use href="#i-clipboard"/></svg></div>
+                    <h2>CCV (Critical Control Verification)</h2>
+                    <p>
+                        Menu CCV &rarr; Visualisasi Grafik menampilkan grafik Critical
+                        Control Verification UID Sulselrabar: kumulatif per bulan,
+                        per unit pelaksana, per ULP, persentase risk containment dan
+                        total observer.
+                    </p>
+                </div>
+
+                <div class="panel guide-card">
+                    <div class="guide-ico"><svg class="ic"><use href="#i-target"/></svg></div>
+                    <h2>4DX</h2>
+                    <p>
+                        Menu 4DX berisi WIG 1 (LM 1.1 s.d. LM 1.3) dan WIG 2
+                        (LM 2.1 s.d. LM 2.2). Datanya diambil dari kolom Realisasi
+                        pada Spreadsheet 4DX.
+                    </p>
+                </div>
+
+                <div class="panel guide-card">
+                    <div class="guide-ico"><svg class="ic"><use href="#i-shield"/></svg></div>
+                    <h2>Laporan Safety Briefing</h2>
+                    <p>
+                        Menampilkan rekap laporan safety briefing dan respon pesan
+                        keselamatan dari Spreadsheet.
+                    </p>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- ======================================
+     DRAWER PENGATURAN
+======================================= -->
+
+<div class="drawer-overlay" id="drawerOverlay">
+
+    <aside class="drawer" id="dataDrawer">
+
+        <div class="drawer-header">
+            <div>
+                <h2>Pengaturan Data</h2>
+                <p>Hubungkan website dengan sumber data.</p>
+            </div>
+            <button class="icon-btn" id="closeDrawer"><svg class="ic"><use href="#i-x"/></svg></button>
+        </div>
+
+        <div class="drawer-body">
+
+            <div class="form-group">
+                <label>URL Google Sheets CSV</label>
+                <input type="text" id="csvUrlInput">
+            </div>
+
+            <button class="btn btn-primary full" id="loadUrlBtn">Hubungkan Spreadsheet</button>
+
+            <hr>
+
+            <div class="status-message" id="statusMsg">Menunggu koneksi...</div>
+
+            <div class="form-group">
+                <label>Upload CSV / XLSX</label>
+                <input type="file" id="fileInput" accept=".csv,.xlsx,.xls">
+            </div>
+
+            <div class="form-group">
+                <label>Tempel CSV</label>
+                <textarea id="csvPasteInput" rows="7" placeholder="Tempel data CSV di sini..."></textarea>
+            </div>
+
+            <button class="btn btn-secondary full" id="loadPasteBtn">Baca CSV</button>
+
+            <button class="btn btn-secondary full" id="sampleBtn">Gunakan Data Contoh</button>
+
+            <button class="btn btn-danger full" id="clearBtn">Hapus Data Lokal</button>
+
+        </div>
+
+    </aside>
+
+</div>
+
+
+<!-- ======================================
+     MODAL EDIT DATA TEMUAN
+======================================= -->
+
+<div class="modal-overlay" id="editModal">
+
+    <div class="edit-modal">
+
+        <div class="modal-header">
+            <div>
+                <h2>Edit Data Temuan</h2>
+                <p>Lengkapi informasi temuan monitoring CCTV.</p>
+            </div>
+            <button class="icon-btn" id="closeEditModal" type="button"><svg class="ic"><use href="#i-x"/></svg></button>
+        </div>
+
+        <div class="modal-body">
+
+            <div class="edit-reference">
+                <div>
+                    <span>Pekerjaan</span>
+                    <strong id="editJob">-</strong>
+                </div>
+                <div>
+                    <span>Lokasi</span>
+                    <strong id="editLocation">-</strong>
+                </div>
+            </div>
+
+            <form id="editForm">
+
+                <input type="hidden" id="editRowNumber">
+
+                <div class="form-group">
+                    <label for="editDescription">Deskripsi Temuan (Jika Ada)</label>
+                    <textarea id="editDescription" rows="4" placeholder="Masukkan deskripsi temuan jika ada..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="editFindingTime">Waktu Temuan</label>
+                    <input type="datetime-local" id="editFindingTime">
+                </div>
+
+                <div class="form-group">
+                    <label for="editFollowUp">Tindak Lanjut</label>
+                    <select id="editFollowUp">
+                        <option value="">-- Pilih Tindak Lanjut --</option>
+                        <option value="Tegur Online">Tegur Online</option>
+                        <option value="CMC">CMC</option>
+                        <option value="Perbaikan">Perbaikan</option>
+                        <option value="Monitoring Lanjutan">Monitoring Lanjutan</option>
+                        <option value="Koordinasi">Koordinasi</option>
+                        <option value="Eskalasi">Eskalasi</option>
+                        <option value="Selesai">Selesai</option>
+                        <option value="Lainnya">Lainnya</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="editFindingDocumentation">Dokumentasi Temuan</label>
+                    <input type="url" id="editFindingDocumentation" placeholder="Masukkan link dokumentasi temuan...">
+                </div>
+
+                <div class="form-group">
+                    <label for="editInformation">Keterangan</label>
+                    <textarea id="editInformation" rows="4" placeholder="Masukkan keterangan..."></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelEditBtn">Batal</button>
+                    <button type="submit" class="btn btn-primary" id="saveEditBtn">Simpan Perubahan</button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ======================================
+     MODAL LIHAT PDF
+======================================= -->
+
+<div class="modal-overlay" id="pdfModal">
+
+    <div class="edit-modal pdf-modal">
+
+        <div class="modal-header">
+            <div>
+                <h2 id="pdfModalTitle">Rekap Laporan Harian (PDF)</h2>
+                <p id="pdfModalDesc">Direkap per tanggal — ULP yang sudah melapor pada hari itu.</p>
+            </div>
+            <button class="icon-btn" id="closePdfModal" type="button"><svg class="ic"><use href="#i-x"/></svg></button>
+        </div>
+
+        <div class="modal-body pdf-modal-body">
+            <div class="pdf-status" id="pdfStatus">Menyiapkan PDF...</div>
+            <iframe id="pdfPreviewFrame" class="pdf-preview-frame" title="Preview PDF Rekap Laporan"></iframe>
+        </div>
+
+        <div class="modal-actions pdf-modal-actions">
+            <button type="button" class="btn btn-secondary" id="closePdfModalBtn">Tutup</button>
+            <button type="button" class="btn btn-primary" id="downloadPdfBtn"><svg class="ic"><use href="#i-download"/></svg> Unduh PDF</button>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- LIBRARY -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+<script src="script.js"></script>
+
+<!-- Logika menu CCV -->
+<script src="ccv-tambahan.js"></script>
+
+<!-- Menu berkelompok, halaman 4DX dan wadah Safety Briefing -->
+<script src="menu-4dx.js"></script>
+
+<!-- Data Realisasi 4DX (harus setelah menu-4dx.js) -->
+<script src="4dx-data.js"></script>
+
+<script src="safety-briefing.js"></script>
+
+</body>
+
+</html>
